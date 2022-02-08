@@ -25,12 +25,11 @@ SECRET_KEY = 'django-insecure-^wat&e9a+wzz3re68u0pt@$=6dfgsuo2knf3__clie@^atbc$m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
 INSTALLED_APPS = [
+    'ping.apps.PingConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -115,6 +114,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Allow all hosts, to solve the CSRF issue.
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
