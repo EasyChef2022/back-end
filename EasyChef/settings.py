@@ -30,6 +30,7 @@ DEBUG = True
 
 INSTALLED_APPS = [
     'ping.apps.PingConfig',
+    'user.apps.UserConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

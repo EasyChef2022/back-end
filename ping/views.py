@@ -13,7 +13,7 @@ def ping(request):
 @csrf_exempt
 def create_group_member(request):
     """
-    Submitted in FORM
+    Submit in POST FORM
         form = GroupMemberForm(request.POST or None)
 
     if form.is_valid():
@@ -25,17 +25,15 @@ def create_group_member(request):
     else:
         return HttpResponse("Form is not valid!")
     """
-    # Submitted in JSON
+
+    # Submit in JSON
     form = GroupMemberForm()
     if request.method == 'POST':
         request_data = json.loads(request.body)
-        print(request_data)
-        # data = json.load(request_data)
-        # print(data)
         groupmember = form.save(commit=False)
         groupmember.name = request_data['name']
         groupmember.email = request_data['email']
         groupmember.save()
         return HttpResponse("Group member created!")
     else:
-        return HttpResponse("Form is not valid!")
+        return HttpResponse("Method not allowed! Use POST and JSON instead.")
