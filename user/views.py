@@ -40,8 +40,6 @@ def user_sign_up(request):
 
 @csrf_exempt
 def user_sign_in(request):
-    # Submit in JSON
-    form = UserForm()
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
         request_data = json.loads(request.body)
@@ -65,3 +63,13 @@ def user_sign_in(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
+
+# @csrf_exempt
+# def change_password(request):
+#     response = {"success": "0", "message": ""}
+#     if request.method == 'POST':
+#         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+#     else:
+#         response['message'] = "Method Not Allowed"
+#         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
