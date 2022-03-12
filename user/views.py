@@ -1,9 +1,14 @@
 import json
+import time
+
 from django.http import HttpResponse
+
+import middlewares.middlewares
+import util.jwt_auth
 from .models import User
 from .forms import UserForm
 from django.views.decorators.csrf import csrf_exempt
-from helper.salt_password import salt_password, compare_password
+from util.salt_password import salt_password, compare_password
 
 
 @csrf_exempt
@@ -53,6 +58,13 @@ def user_sign_in(request):
             if compare_password(request_data['password'], user_info.password):
                 response['success'] = "1"
                 response['message'] = "Login successful"
+                try:
+                    response['token'] = util.jwt_auth.generate_token(payload={"username": user_info.username,
+                                                                              "timestamp": time.time()},
+                                                                     secret=middlewares.middlewares.JWT_secret)
+                except Exception as e:
+                    response['message'] = str(e)
+                    return HttpResponse(json.dumps(response), content_type="application/json", status=500)
                 return HttpResponse(json.dumps(response), content_type="application/json", status=200)
             else:
                 response['message'] = "Invalid password"
@@ -63,13 +75,3 @@ def user_sign_in(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-
-# @csrf_exempt
-# def change_password(request):
-#     response = {"success": "0", "message": ""}
-#     if request.method == 'POST':
-#         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-#     else:
-#         response['message'] = "Method Not Allowed"
-#         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
