@@ -10,7 +10,7 @@ dp_port = '5432'
 
 
 def str2arrfield(s):
-    return '\'{' + s.replace('[', '').replace(']', '').replace("\'", "") + '}\''
+    return '\'{' + s.replace('[', '').replace(']', '').replace("\'", "").replace("\"", "") + '}\''
 
 
 def str2str(s):
@@ -37,6 +37,7 @@ def get_conn():
 def load_recipe():
     conn = get_conn()
     cur = conn.cursor()
+    success = fail = 0
     with open('../recipe_data/all_recipe.csv', 'r') as recipe_file:
         reader = csv.DictReader(recipe_file)
         for line in reader:
@@ -49,10 +50,16 @@ def load_recipe():
             tags = str2arrfield(line['tags'])
             sql = f'INSERT INTO recipe (cooking_method, cuisine, image, ingredients, name, prep_time, tags) VALUES ({cooking_method}, {cuisine}, {image}, {ingredients}, {name}, {prep_time}, {tags})'
             # print(sql)
-            cur.execute(sql)
+            try:
+                cur.execute(sql)
+                success += 1
+            except Exception as e:
+                fail += 1
+                print(sql)
+                print(e)
             conn.commit()
-            print(cooking_method, cuisine, image, ingredients, name, prep_time, tags)
-            break
+    print(f'Success: {success}, Fail: {fail}')
+
 
 
 def test_result():
@@ -64,3 +71,9 @@ def test_result():
     print(len(result))
     for row in result:
         print(row)
+
+
+if __name__ == '__main__':
+    # con = get_conn()
+    load_recipe()
+    # result()
