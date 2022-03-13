@@ -75,7 +75,7 @@ def user_sign_in(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-        
+
 @csrf_exempt
 def user_change_password(request):
     response = {"success": "0", "message": ""}
@@ -86,7 +86,7 @@ def user_change_password(request):
             user_info = User.objects.get(username=request_data['username'])
         except Exception as e:
             response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=404)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
         try:
             if compare_password(request_data['password'], user_info.password):
@@ -102,13 +102,6 @@ def user_change_password(request):
                 user_info.password = salt_password(request_data['new_password'])
                 response['success'] = "1"
                 response['message'] = "Password changed successful"
-                try:
-                    response['token'] = util.jwt_auth.generate_token(payload={"username": user_info.username,
-                                                                              "timestamp": time.time()},
-                                                                     secret=middlewares.middlewares.JWT_secret)
-                except Exception as e:
-                    response['message'] = str(e)
-                    return HttpResponse(json.dumps(response), content_type="application/json", status=500)
                 return HttpResponse(json.dumps(response), content_type="application/json", status=200)
             else:
                 response['message'] = "Invalid password"
