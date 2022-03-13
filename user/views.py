@@ -75,3 +75,47 @@ def user_sign_in(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+        
+@csrf_exempt
+def user_change_password(request):
+    response = {"success": "0", "message": ""}
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        # match with the username
+        try:
+            user_info = User.objects.get(username=request_data['username'])
+        except Exception as e:
+            response['message'] = "User not found"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=404)
+
+        try:
+            if compare_password(request_data['password'], user_info.password):
+                if len(request_data['new_password']) < 6 or ' ' in request_data['new_password']:
+                    # check the new_password valid
+                    response['message'] = "Invalid new_password"
+                    return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+                if request_data['new_password'] == request_data['password']:
+                    # check the new_password same or not with old password
+                    response['message'] = "new_password same as old_password"
+                    return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+                # all condition are good, change password below
+                user_info.password = salt_password(request_data['new_password'])
+                response['success'] = "1"
+                response['message'] = "Password changed successful"
+                try:
+                    response['token'] = util.jwt_auth.generate_token(payload={"username": user_info.username,
+                                                                              "timestamp": time.time()},
+                                                                     secret=middlewares.middlewares.JWT_secret)
+                except Exception as e:
+                    response['message'] = str(e)
+                    return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
+            else:
+                response['message'] = "Invalid password"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+        except Exception as e:
+            response['message'] = "Missing password"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+    else:
+        response['message'] = "Method Not Allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
