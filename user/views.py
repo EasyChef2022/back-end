@@ -1,8 +1,6 @@
 import json
 import time
-
 from django.http import HttpResponse
-
 import middlewares.middlewares
 import util.jwt_auth
 from .models import User
@@ -52,7 +50,7 @@ def user_sign_in(request):
             user_info = User.objects.get(username=request_data['username'])
         except Exception as e:
             response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=404)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
         try:
             if compare_password(request_data['password'], user_info.password):
