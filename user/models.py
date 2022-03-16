@@ -11,6 +11,8 @@ class User(models.Model):
     herbs = ArrayField(ArrayField(models.CharField(max_length=200), default=list, size=3), default=list, null=True)
     spices = ArrayField(ArrayField(models.CharField(max_length=200), default=list, size=3), default=list, null=True)
     proteins = ArrayField(ArrayField(models.CharField(max_length=200), default=list, size=3), default=list, null=True)
+    favorite = ArrayField(models.CharField(max_length=200), default=list, null=True)
+    ban = ArrayField(models.IntegerField(), default=list, null=True)
 
     class Meta:
         db_table = 'user'
