@@ -1,12 +1,19 @@
 import json
 import time
 from django.http import HttpResponse
+from rest_framework import generics
 import middlewares.middlewares
 import util.jwt_auth
+from EasyChef.serializer import UserSerializer
 from .models import User
 from .forms import UserForm
 from django.views.decorators.csrf import csrf_exempt
 from util.salt_password import salt_password, compare_password
+
+# TODO: Swagger
+# class UserList(generics.ListCreateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
 
 @csrf_exempt
