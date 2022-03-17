@@ -1,3 +1,6 @@
+import json
+from json import JSONEncoder
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
@@ -16,3 +19,10 @@ class Recipe(models.Model):
 
     class Meta:
         db_table = 'recipe'
+
+    class RecipeEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
+
+    def toJson(self):
+        return json.dumps(self, default=lambda o: o.__dict__)

@@ -27,15 +27,18 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
-    'ping.apps.PingConfig',
-    'user.apps.UserConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders'  # Handle CORS
+    'corsheaders',  # Handle CORS
+    'recipe.apps.RecipeConfig',
+    'ping.apps.PingConfig',
+    'user.apps.UserConfig',
+    'rest_framework',
+    'rest_framework_swagger'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +53,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'middlewares.middlewares.JWTMiddleware'
 ]
-
 
 ROOT_URLCONF = 'EasyChef.urls'
 
@@ -159,3 +161,12 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'Pragma',
 )
+
+# swagger
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        "basic": {
+            'type': 'basic'
+        }
+    },
+}

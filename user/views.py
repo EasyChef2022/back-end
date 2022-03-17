@@ -1,14 +1,19 @@
 import json
 import time
-
 from django.http import HttpResponse
-
+from rest_framework import generics
 import middlewares.middlewares
 import util.jwt_auth
+from EasyChef.serializer import UserSerializer
 from .models import User
 from .forms import UserForm
 from django.views.decorators.csrf import csrf_exempt
 from util.salt_password import salt_password, compare_password
+
+# TODO: Swagger
+# class UserList(generics.ListCreateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
 
 
 @csrf_exempt
@@ -52,7 +57,7 @@ def user_sign_in(request):
             user_info = User.objects.get(username=request_data['username'])
         except Exception as e:
             response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=404)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
         try:
             if compare_password(request_data['password'], user_info.password):

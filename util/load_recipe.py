@@ -61,16 +61,15 @@ def load_recipe():
     print(f'Success: {success}, Fail: {fail}')
 
 
-
-def test_result():
-    conn = get_conn()
-    cur = conn.cursor()
-    sql = 'SELECT * FROM recipe'
-    cur.execute(sql)
-    result = cur.fetchall()
-    print(len(result))
-    for row in result:
-        print(row)
+# def result():
+#     conn = get_conn()
+#     cur = conn.cursor()
+#     sql = 'SELECT * FROM recipe'
+#     cur.execute(sql)
+#     result = cur.fetchall()
+#     print(len(result))
+#     for row in result:
+#         print(row)
 
 
 if __name__ == '__main__':
