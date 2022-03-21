@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',  # Handle CORS
     'recipe.apps.RecipeConfig',
-    'ping.apps.PingConfig',
     'user.apps.UserConfig',
     'rest_framework',
     'rest_framework_swagger'

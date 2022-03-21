@@ -5,7 +5,8 @@ import time
 from django.utils.deprecation import MiddlewareMixin
 from django.shortcuts import HttpResponse, redirect
 
-JWT_Required_Paths = ['/user/change_password', '/user/update_storage', '/user/sign_up']
+JWT_Required_Paths = ['/user/change_password', '/user/edit_proteins', '/user/edit_herbs', '/user/edit_spices',
+                      '/user/edit_ban', '/user_edit_favorite']
 JWT_secret = 'easychef'
 
 

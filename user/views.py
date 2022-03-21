@@ -4,11 +4,12 @@ from django.http import HttpResponse
 from rest_framework import generics
 import middlewares.middlewares
 import util.jwt_auth
-from EasyChef.serializer import UserSerializer
 from .models import User
 from .forms import UserForm
 from django.views.decorators.csrf import csrf_exempt
 from util.salt_password import salt_password, compare_password
+from django.forms.models import model_to_dict
+
 
 # TODO: Swagger
 # class UserList(generics.ListCreateAPIView):
@@ -67,6 +68,7 @@ def user_sign_in(request):
                     response['token'] = util.jwt_auth.generate_token(payload={"username": user_info.username,
                                                                               "timestamp": time.time()},
                                                                      secret=middlewares.middlewares.JWT_secret)
+                    response['user'] = model_to_dict(user_info)
                 except Exception as e:
                     response['message'] = str(e)
                     return HttpResponse(json.dumps(response), content_type="application/json", status=500)
@@ -81,213 +83,120 @@ def user_sign_in(request):
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
 
+
 @csrf_exempt
 def user_change_password(request):
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
         request_data = json.loads(request.body)
-        # match with the username
-        try:
-            user_info = User.objects.get(username=request_data['username'])
-        except Exception as e:
-            response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-        try:
-            if compare_password(request_data['password'], user_info.password):
-                if len(request_data['new_password']) < 6 or ' ' in request_data['new_password']:
-                    # check the new_password valid
-                    response['message'] = "Invalid new_password"
-                    return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-                if request_data['new_password'] == request_data['password']:
-                    # check the new_password same or not with old password
-                    response['message'] = "new_password same as old_password"
-                    return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-                # all condition are good, change password below
-                user_info.password = salt_password(request_data['new_password'])
-                response['success'] = "1"
-                response['message'] = "Password changed successful"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-            else:
-                response['message'] = "Invalid password"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-        except Exception as e:
+        if 'password' not in request_data:
             response['message'] = "Missing password"
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-    else:
-        response['message'] = "Method Not Allowed"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-
-@csrf_exempt
-def user_add_herbs(request):
-    response = {"success": "0", "message": ""}
-    if request.method == 'POST':
-        request_data = json.loads(request.body)
-        # match with the username
-        try:
-            user_info = User.objects.get(username=request_data['username'])
-        except Exception as e:
-            response['message'] = "User not found"
+        user = User.objects.get(username=request_data['username'])
+        new_pass = salt_password(request_data['password'])
+        if len(request_data['password']) < 6 or ' ' in request_data['password']:
+            response['message'] = "Invalid password"
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+        if user.password == new_pass:
+            response['message'] = "New password is same as old password"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+        user.password = new_pass
 
         try:
-            if (request_data['new_herb'] in user_info.herbs):
-                response['message'] = "Can't add repetitive herb"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-            else:
-                response['message'] = "New herb added"
-                user_info.herbs.append(request_data['new_herb'])
-                response['success'] = "1"
-                response['message'] = "New herb added succesfully"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-        except Exception as e:
-            response['message'] = "Missing Herb"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-    else:
-        response['message'] = "Method Not Allowed"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-
-def user_remove_herbs(request):
-    response = {"success": "0", "message": ""}
-    if request.method == 'POST':
-        request_data = json.loads(request.body)
-        # match with the username
-        try:
-            user_info = User.objects.get(username=request_data['username'])
-        except Exception as e:
-            response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-        try:
-            if (request_data['remove_herb'] not in user_info.herbs):
-                response['message'] = "Herb not exist"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-            else:
-                response['message'] = "Herb removed"
-                user_info.herbs.remove(request_data['remove_herb'])
-                response['success'] = "1"
-                response['message'] = "Herb removed succesfully"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-        except Exception as e:
-            response['message'] = "Missing herb"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-    else:
-        response['message'] = "Method Not Allowed"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-
-@csrf_exempt
-def user_add_species(request):
-        response = {"success": "0", "message": ""}
-        if request.method == 'POST':
-            request_data = json.loads(request.body)
-            # match with the username
-            try:
-                user_info = User.objects.get(username=request_data['username'])
-            except Exception as e:
-                response['message'] = "User not found"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-            try:
-                if (request_data['new_specie'] in user_info.species):
-                    response['message'] = "Can't add repetitive specie"
-                    return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-                else:
-                    response['message'] = "New specie added"
-                    user_info.species.append(request_data['new_specie'])
-                    response['success'] = "1"
-                    response['message'] = "New specie added succesfully"
-                    return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-            except Exception as e:
-                response['message'] = "Missing specie"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-        else:
-            response['message'] = "Method Not Allowed"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-def user_remove_herbs(request):
-    response = {"success": "0", "message": ""}
-    if request.method == 'POST':
-        request_data = json.loads(request.body)
-        # match with the username
-        try:
-            user_info = User.objects.get(username=request_data['username'])
-        except Exception as e:
-            response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-        try:
-            if (request_data['remove_specie'] not in user_info.species):
-                response['message'] = "Specie not exist"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-            else:
-                response['message'] = "Specie removed"
-                user_info.species.remove(request_data['remove_specie'])
-                response['success'] = "1"
-                response['message'] = "Specie removed succesfully"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-        except Exception as e:
-            response['message'] = "Missing specie"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-    else:
-        response['message'] = "Method Not Allowed"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-@csrf_exempt
-def user_add_proteins(request):
-    response = {"success": "0", "message": ""}
-    if request.method == 'POST':
-        request_data = json.loads(request.body)
-        # match with the username
-        try:
-            user_info = User.objects.get(username=request_data['username'])
-        except Exception as e:
-            response['message'] = "User not found"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-        try:
-            if (request_data['new_protein'] in user_info.proteins):
-                response['message'] = "Can't add repetitive protein"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-            else:
-                response['message'] = "New protein added"
-                user_info.proteins.append(request_data['new_protein'])
-                response['success'] = "1"
-                response['message'] = "New protein added succesfully"
-                return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-        except Exception as e:
-            response['message'] = "Missing protein"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-    else:
-        response['message'] = "Method Not Allowed"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
-
-def user_remove_proteins(request):
-response = {"success": "0", "message": ""}
-if request.method == 'POST':
-    request_data = json.loads(request.body)
-    # match with the username
-    try:
-        user_info = User.objects.get(username=request_data['username'])
-    except Exception as e:
-        response['message'] = "User not found"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-
-    try:
-        if (request_data['remove_protein'] not in user_info.proteins):
-            response['message'] = "Protein not exist"
-            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-        else:
-            response['message'] = "Protein removed"
-            user_info.proteins.remove(request_data['remove_protein'])
+            user.save()
             response['success'] = "1"
-            response['message'] = "Protein removed succesfully"
+            response['message'] = "Password changed"
             return HttpResponse(json.dumps(response), content_type="application/json", status=200)
-    except Exception as e:
-        response['message'] = "Missing protein"
-        return HttpResponse(json.dumps(response), content_type="application/json", status=400)
-else:
-    response['message'] = "Method Not Allowed"
-    return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+    else:
+        response['message'] = "Method Not Allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
+
+@csrf_exempt
+def user_add_pantry(request):
+    response = {"success": "0", "message": ""}
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        indicator = request_data['type']
+        user = User.objects.get(username=request_data['username'])
+
+        # Hardcoded for now
+        if indicator == 'herbs':
+            user.herbs.append(request_data['item'])
+        elif indicator == "proteins":
+            user.proteins.append(request_data['item'])
+        elif indicator == 'vegetables':
+            user.vegetables.append(request_data['item'])
+        elif indicator == 'spices':
+            user.spices.append(request_data['item'])
+        elif indicator == 'favorite':
+            user.favorite.append(request_data['item'])
+        elif indicator == 'ban':
+            user.ban.append(request_data['item'])
+        else:
+            response['message'] = "Invalid type"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+
+        try:
+            user.save()
+            response['success'] = "1"
+            response['message'] = "Successfully added"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=200)
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+    else:
+        response['message'] = "Method Not Allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
+@csrf_exempt
+def user_remove_pantry(request):
+    response = {"success": "0", "message": ""}
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        indicator = request_data['type']
+        user = User.objects.get(username=request_data['username'])
+
+        # Hardcoded for now
+        if indicator == 'herbs':
+            for item in user.herbs:
+                if item == request_data['item']:
+                    user.herbs.remove(item)
+        elif indicator == "proteins":
+            for item in user.proteins:
+                if item == request_data['item']:
+                    user.proteins.remove(item)
+        elif indicator == 'vegetables':
+            for item in user.vegetables:
+                if item == request_data['item']:
+                    user.vegetables.remove(item)
+        elif indicator == 'spices':
+            for item in user.spices:
+                if item == request_data['item']:
+                    user.spices.remove(item)
+        elif indicator == 'favorite':
+            for item in user.favorite:
+                if item == request_data['item']:
+                    user.favorite.remove(item)
+        elif indicator == 'ban':
+            for item in user.ban:
+                if item == request_data['item']:
+                    user.ban.remove(item)
+        else:
+            response['message'] = "Invalid type"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+
+        try:
+            user.save()
+            response['success'] = "1"
+            response['message'] = "Successfully removed"
+            return HttpResponse(json.dumps(response), content_type="application/json", status=200)
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
+    else:
+        response['message'] = "Method Not Allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)

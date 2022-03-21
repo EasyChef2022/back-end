@@ -1,6 +1,7 @@
 import csv
 import psycopg2
 from psycopg2 import extras
+from deprecated import deprecated
 
 db_name = 'easychef'
 db_user = 'postgres'
@@ -33,7 +34,7 @@ def get_conn():
     except:
         print("Failed to connect to database")
 
-
+@deprecated
 def load_recipe():
     conn = get_conn()
     cur = conn.cursor()
@@ -59,6 +60,8 @@ def load_recipe():
                 print(e)
             conn.commit()
     print(f'Success: {success}, Fail: {fail}')
+
+
 
 
 # def result():

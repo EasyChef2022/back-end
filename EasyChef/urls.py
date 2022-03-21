@@ -19,7 +19,6 @@ from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('ping/', include('ping.urls')),
     path('user/', include('user.urls')),
     path('recipe/', include('recipe.urls')),
     path('docs', include_docs_urls(title='EasyChef API')),
