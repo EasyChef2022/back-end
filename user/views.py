@@ -62,16 +62,17 @@ def user_sign_in(request):
 
         try:
             if compare_password(request_data['password'], user_info.password):
-                response['success'] = "1"
                 response['message'] = "Login successful"
                 try:
                     response['token'] = util.jwt_auth.generate_token(payload={"username": user_info.username,
                                                                               "timestamp": time.time()},
                                                                      secret=middlewares.middlewares.JWT_secret)
                     response['user'] = model_to_dict(user_info)
+                    response['user'].pop('password')
                 except Exception as e:
                     response['message'] = str(e)
                     return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+                response['success'] = "1"
                 return HttpResponse(json.dumps(response), content_type="application/json", status=200)
             else:
                 response['message'] = "Invalid password"
@@ -82,6 +83,23 @@ def user_sign_in(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
+
+@csrf_exempt
+def get_user_by_username(request):
+    response = {"success": 0, "message": ""}
+    if request.method != 'GET':
+        response["message"] = "Method not allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+    try:
+        user_info = User.objects.get(username=request.GET['username'])
+    except Exception as e:
+        response["message"] = str(e)
+        return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+    response['user'] = model_to_dict(user_info)
+    response['user'].pop('password')
+    response['success'] = 1
+    return HttpResponse(json.dumps(response), content_type="application/json", status=200)
 
 
 @csrf_exempt
@@ -151,6 +169,7 @@ def user_add_pantry(request):
     else:
         response['message'] = "Method Not Allowed"
         return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
 
 @csrf_exempt
 def user_remove_pantry(request):

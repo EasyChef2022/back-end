@@ -1,4 +1,6 @@
 import csv
+import json
+
 import psycopg2
 from psycopg2 import extras
 from deprecated import deprecated
@@ -34,6 +36,7 @@ def get_conn():
     except:
         print("Failed to connect to database")
 
+
 @deprecated
 def load_recipe():
     conn = get_conn()
@@ -62,6 +65,33 @@ def load_recipe():
     print(f'Success: {success}, Fail: {fail}')
 
 
+def load_recipe_json():
+    conn = get_conn()
+    success = fail = 0
+    with open('../recipe_data/allrecipes-recipes.json', 'r') as recipe_file:
+        for line in recipe_file:
+            try:
+                data = json.loads(line)
+                cook_time = data['cook_time_minutes']
+                description = data['description']
+                ingredients = data['ingredients']
+                instructions = data['instructions']
+                photo_url = data['photo_url']
+                prep_time = data['prep_time_minutes']
+                rating = data['rating_stars'] * 100
+                title = data['title']
+                recipe_url = data['url']
+                sql = '''INSERT INTO recipe (cook_time, description, ingredients, instructions, photo_url, prep_time, rating, title, recipe_url) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+                cur = conn.cursor()
+                cur.execute(sql, (cook_time, description, ingredients, instructions, photo_url, prep_time, rating, title, recipe_url))
+                conn.commit()
+                success += 1
+            except Exception as e:
+                print(line)
+                print(e)
+                fail += 1
+                break
+        print(f'Success: {success}, Fail: {fail}')
 
 
 # def result():
@@ -76,6 +106,4 @@ def load_recipe():
 
 
 if __name__ == '__main__':
-    # con = get_conn()
-    load_recipe()
-    # result()
+    load_recipe_json()
