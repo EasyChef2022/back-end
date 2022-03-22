@@ -139,7 +139,11 @@ def user_add_pantry(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
         indicator = request_data['type']
-        user = User.objects.get(username=request_data['username'])
+        try:
+            user = User.objects.get(username=request_data['username'])
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         item = request_data['item']
         # Hardcoded for now
         if indicator == 'herbs':
@@ -201,7 +205,11 @@ def user_remove_pantry(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
         indicator = request_data['type']
-        user = User.objects.get(username=request_data['username'])
+        try:
+            user = User.objects.get(username=request_data['username'])
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
         # Hardcoded for now
         if indicator == 'herbs':
