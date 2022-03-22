@@ -140,20 +140,44 @@ def user_add_pantry(request):
         request_data = json.loads(request.body)
         indicator = request_data['type']
         user = User.objects.get(username=request_data['username'])
-
+        item = request_data['item']
         # Hardcoded for now
         if indicator == 'herbs':
-            user.herbs.append(request_data['item'])
+            if item not in user.herbs:
+                user.herbs.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         elif indicator == "proteins":
-            user.proteins.append(request_data['item'])
+            if item not in user.proteins:
+                user.proteins.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         elif indicator == 'vegetables':
-            user.vegetables.append(request_data['item'])
+            if item not in user.vegetables:
+                user.vegetables.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         elif indicator == 'spices':
-            user.spices.append(request_data['item'])
+            if item not in user.spices:
+                user.spices.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         elif indicator == 'favorite':
-            user.favorite.append(request_data['item'])
+            if item not in user.favorite:
+                user.favorite.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         elif indicator == 'ban':
-            user.ban.append(request_data['item'])
+            if item not in user.ban:
+                user.ban.append(item)
+            else:
+                response['message'] = "Item already in pantry"
+                return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         else:
             response['message'] = "Invalid type"
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
