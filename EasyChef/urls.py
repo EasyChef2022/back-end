@@ -18,6 +18,7 @@ from django.urls import path, include
 from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
+    path('', include('ping.urls')),
     path('admin/', admin.site.urls),
     path('user/', include('user.urls')),
     path('recipe/', include('recipe.urls')),

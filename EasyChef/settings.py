@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'corsheaders',  # Handle CORS
     'recipe.apps.RecipeConfig',
     'user.apps.UserConfig',
+    'ping.apps.PingConfig',
     'rest_framework',
     'rest_framework_swagger'
 ]
@@ -78,6 +79,7 @@ WSGI_APPLICATION = 'EasyChef.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    # database for heroku deployment
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'd3351piepk4rjj',
