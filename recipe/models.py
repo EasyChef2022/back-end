@@ -5,17 +5,17 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 
-# Create your models here.
-
 class Recipe(models.Model):
     id = models.AutoField(primary_key=True)
-    cooking_method = ArrayField(models.CharField(max_length=500), blank=True, null=True)
-    cuisine = models.CharField(max_length=100, blank=True, null=True)
-    image = models.CharField(max_length=500, blank=True, null=True)
-    ingredients = ArrayField(models.CharField(max_length=500), blank=True, null=True)
-    name = models.CharField(max_length=500, blank=True, null=True)
-    prep_time = models.IntegerField(blank=True, null=True)
-    tags = ArrayField(models.CharField(max_length=100), blank=True, null=True)
+    cook_time = models.IntegerField(default=0)
+    prep_time = models.IntegerField(default=0)
+    description = models.CharField(max_length=2000, default="")
+    ingredients = ArrayField(models.CharField(max_length=2000), default=list)
+    instructions = ArrayField(models.CharField(max_length=2000), default=list)
+    photo_url = models.CharField(max_length=400, default="")
+    rating = models.IntegerField(default=0)
+    title = models.CharField(max_length=400, default="")
+    recipe_url = models.CharField(max_length=400, default="")
 
     class Meta:
         db_table = 'recipe'
@@ -23,6 +23,3 @@ class Recipe(models.Model):
     class RecipeEncoder(JSONEncoder):
         def default(self, o):
             return o.__dict__
-
-    def toJson(self):
-        return json.dumps(self, default=lambda o: o.__dict__)

@@ -2,3 +2,4 @@ Django==4.0.1
 PyJWT~=2.1.0
 
 djangorestframework~=3.13.1
+Deprecated~=1.2.13
