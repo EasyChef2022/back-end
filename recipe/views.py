@@ -1,4 +1,5 @@
 import json
+import random
 
 from django.http import HttpResponse
 
@@ -74,3 +75,10 @@ def get_recipe_by_name(request):
         response["message"] = str(e)
         return HttpResponse(json.dumps(response), content_type="application/json", status=500)
     return HttpResponse(json.dumps(result, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json")
+
+
+@csrf_exempt
+def get_recipe_of_today(request):
+    return HttpResponse(
+        json.dumps(Recipe.objects.get(id=random.randint(1, Recipe.objects.count())), cls=Recipe.RecipeEncoder,
+                   indent=4), content_type="application/json")
