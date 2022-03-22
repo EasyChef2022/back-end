@@ -1,9 +1,8 @@
-def search_by_ingredients(ingredients: [str], exclude: [str], offset: int, limit: int) -> str:
+def search_by_ingredients(ingredients: [str], exclude: [int], offset: int, limit: int) -> str:
     sql = '''select * from (select *, lower(array_to_string(ingredients, ',', '*')) as r_string from recipe) as temp where '''
     for i in ingredients:
         sql += f'''r_string like '%%{i.lower()}%%' and '''
-    for i in exclude:
-        sql += f'''r_string not like '%%{i.lower()}%%' and '''
+    sql += f'''id not in {str(exclude).replace('[', '(').replace(']', ')')} and '''
     sql = sql[:-4] + f'limit {limit} offset {offset};'
     return sql
 

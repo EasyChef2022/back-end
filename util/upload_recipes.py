@@ -33,7 +33,7 @@ def get_recipe_count():
 def get_recipes(offset, limit):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute(f'SELECT * FROM recipe order by id desc limit {limit} offset {offset}')
+    cur.execute(f'SELECT * FROM recipe order by id asc limit {limit} offset {offset}')
     recipes = cur.fetchall()
     conn.close()
     return recipes
