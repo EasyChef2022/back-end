@@ -1,3 +1,3 @@
 release: python3 manage.py makemigrations
 release: python3 manage.py migrate
-web: python3 manage.py runserver
+web: gunicorn EasyChef.wsgi:application --log-file -
