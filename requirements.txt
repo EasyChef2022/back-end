@@ -3,3 +3,4 @@ PyJWT~=2.1.0
 
 djangorestframework~=3.13.1
 Deprecated~=1.2.13
+django_heroku==0.3.1
