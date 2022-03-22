@@ -33,20 +33,20 @@ def get_recipe_count():
 def get_recipes(offset, limit):
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute(f'SELECT * FROM recipe order by id asc limit {limit} offset {offset}')
+    cur.execute(f'SELECT * FROM recipe order by id desc limit {limit} offset {offset}')
     recipes = cur.fetchall()
     conn.close()
     return recipes
 
 
 def send_request():
-    # url = 'http://easychef.herokuapp.com/recipe/add_recipe'
-    url = 'http://localhost:8000/recipe/add_recipe'
+    url = 'http://easychef.herokuapp.com/recipe/add_recipe'
+    # url = 'http://localhost:8000/recipe/add_recipe'
     count = get_recipe_count()
     for i in range(0, count, 500):
         recipes = get_recipes(i, 500)
         data = {'recipes': recipes}
-        print(data)
+        # print(data)
         response = requests.post(url, data=json.dumps(data))
         print(response)
 

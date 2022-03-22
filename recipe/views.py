@@ -79,9 +79,13 @@ def get_recipe_by_name(request):
 
 @csrf_exempt
 def get_recipe_of_today(request):
-    return HttpResponse(
-        json.dumps(Recipe.objects.get(id=random.randint(1, Recipe.objects.count())), cls=Recipe.RecipeEncoder,
-                   indent=4), content_type="application/json")
+    while 1 == 1:
+        try:
+            return HttpResponse(
+                json.dumps(Recipe.objects.get(id=random.randint(1, Recipe.objects.count())), cls=Recipe.RecipeEncoder,
+                           indent=4), content_type="application/json")
+        except Exception as e:
+            continue
 
 
 @csrf_exempt
