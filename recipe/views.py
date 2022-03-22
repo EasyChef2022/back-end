@@ -102,7 +102,7 @@ def add_recipe(request):
         r.prep_time = recipe[2]
         r.description = recipe[3]
         r.ingredients = recipe[4]
-        r.instruction = recipe[5]
+        r.instructions = recipe[5]
         r.photo_url = recipe[6]
         r.rating = recipe[7]
         r.title = recipe[8]
@@ -112,3 +112,16 @@ def add_recipe(request):
         except Exception as e:
             continue
     return HttpResponse(json.dumps({"success": 1}), 200)
+
+
+# This is function should only be used by Junix
+@csrf_exempt
+def delete_all_recipe(request):
+    if request.method != 'POST':
+        return HttpResponse(json.dumps({"success": 0, "message": "Method not allowed"}), 405)
+    data = json.loads(request.body)
+    if data['password'] == 'Karlhe459!':
+        Recipe.objects.all().delete()
+        return HttpResponse(json.dumps({"success": 1}), 200)
+    else:
+        return HttpResponse(json.dumps({"success": 0, "message": "Wrong password"}), 405)
