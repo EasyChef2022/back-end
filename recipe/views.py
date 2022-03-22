@@ -82,3 +82,29 @@ def get_recipe_of_today(request):
     return HttpResponse(
         json.dumps(Recipe.objects.get(id=random.randint(1, Recipe.objects.count())), cls=Recipe.RecipeEncoder,
                    indent=4), content_type="application/json")
+
+
+@csrf_exempt
+def add_recipe(request):
+    if request.method != 'POST':
+        return HttpResponse(json.dumps({"success": 0, "message": "Method not allowed"}), 405)
+    data = json.loads(request.body)
+    recipes = data['recipes']
+    form = RecipeForm()
+    for recipe in recipes:
+        r = form.save(commit=False)
+        r.id = recipe[0]
+        r.cook_time = recipe[1]
+        r.prep_time = recipe[2]
+        r.description = recipe[3]
+        r.ingredients = recipe[4]
+        r.instruction = recipe[5]
+        r.photo_url = recipe[6]
+        r.rating = recipe[7]
+        r.title = recipe[8]
+        r.recipe_url = recipe[9]
+        try:
+            r.save()
+        except Exception as e:
+            continue
+    return HttpResponse(json.dumps({"success": 1}), 200)
