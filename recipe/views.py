@@ -1,3 +1,4 @@
+import hashlib
 import json
 import random
 
@@ -8,6 +9,46 @@ from .models import Recipe
 from .forms import RecipeForm
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+
+Auth = 'dc05414dd18879df268456db4e29a5f2d045dea2176c19888cc91769a52436f9'
+
+
+@csrf_exempt
+def get_recipe_by_exact_match(request):
+    response = {"success": 0, "message": ""}
+    if request.method != 'POST':
+        response["message"] = "Method not allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+
+    request_data = json.loads(request.body)
+    try:
+        ingredients = request_data['ingredients']
+        exclude = request_data['ban']
+    except Exception as e:
+        response["message"] = str(e)
+        return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+
+    result = []
+    all_recipes = Recipe.objects.values('id', "ingredients")
+    for i in all_recipes:
+        valid_recipe = True
+        for ing in i['ingredients']:
+            valid_ing = False
+            for j in ingredients:
+                if j.lower() in ing.lower():
+                    valid_ing = True
+                    break
+            if not valid_ing:
+                valid_recipe = False
+                break
+        if valid_recipe and i['id'] not in exclude:
+            result.append(i)
+
+    if result:
+        return HttpResponse(json.dumps(result, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json",
+                            status=200)
+    else:
+        return get_recipe_by_ingredients(request)
 
 
 @csrf_exempt
@@ -120,7 +161,7 @@ def delete_all_recipe(request):
     if request.method != 'POST':
         return HttpResponse(json.dumps({"success": 0, "message": "Method not allowed"}), 405)
     data = json.loads(request.body)
-    if data['password'] == 'Karlhe459!':
+    if hashlib.sha256(data['password'].encode()).hexdigest() == Auth:
         Recipe.objects.all().delete()
         return HttpResponse(json.dumps({"success": 1}), 200)
     else:
