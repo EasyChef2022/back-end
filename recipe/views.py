@@ -43,9 +43,11 @@ def get_recipe_by_exact_match(request):
                 break
         if valid_recipe and i['id'] not in exclude:
             result.append(i)
-
     if result:
-        return HttpResponse(json.dumps(result, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json",
+        response['result'] = result
+        response['success'] = 1
+        response['exact'] = 1
+        return HttpResponse(json.dumps(response, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json",
                             status=200)
     else:
         return get_recipe_by_ingredients(request)
@@ -80,7 +82,10 @@ def get_recipe_by_ingredients(request):
     except Exception as e:
         response["message"] = str(e)
         return HttpResponse(json.dumps(response), content_type="application/json", status=500)
-    return HttpResponse(json.dumps(result, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json")
+    response['result'] = result
+    response['success'] = 1
+    response['exact'] = 0
+    return HttpResponse(json.dumps(response, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json")
 
 
 @csrf_exempt
