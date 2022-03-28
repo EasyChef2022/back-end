@@ -42,9 +42,12 @@ def get_recipe_by_exact_match(request):
                 valid_recipe = False
                 break
         if valid_recipe and i['id'] not in exclude:
-            result.append(i)
+            result.append(i['id'])
+    recipes = []
+    for i in result:
+        recipes.append(Recipe.objects.get(id=i))
     if result:
-        response['result'] = result
+        response['result'] = recipes
         response['success'] = 1
         response['exact'] = 1
         return HttpResponse(json.dumps(response, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json",
