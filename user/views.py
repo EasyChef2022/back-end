@@ -54,12 +54,14 @@ def user_sign_in(request):
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
         request_data = json.loads(request.body)
+        # Get user by username
         try:
             user_info = User.objects.get(username=request_data['username'])
         except Exception as e:
             response['message'] = "User not found"
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
+        # Compare password
         try:
             if compare_password(request_data['password'], user_info.password):
                 response['message'] = "Login successful"
@@ -145,6 +147,7 @@ def user_add_pantry(request):
             response['message'] = str(e)
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         item = request_data['item']
+
         # Hardcoded for now
         if indicator == 'herbs':
             if item not in user.herbs:

@@ -29,7 +29,10 @@ def get_recipe_by_exact_match(request):
         return HttpResponse(json.dumps(response), content_type="application/json", status=500)
 
     result = []
+    # Load all recipes from database
     all_recipes = Recipe.objects.values('id', "ingredients")
+
+    # Find the recipes that match the ingredients
     for i in all_recipes:
         valid_recipe = True
         for ing in i['ingredients']:
