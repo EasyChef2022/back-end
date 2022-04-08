@@ -105,6 +105,24 @@ def get_user_by_username(request):
 
 
 @csrf_exempt
+def delete_user(request):
+    response = {"success": 0, "message": ""}
+    if request.method != 'POST':
+        response["message"] = "Method not allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+    try:
+        request_data = json.loads(request.body)
+        user_info = User.objects.get(username=request_data['username'])
+    except Exception as e:
+        response["message"] = str(e)
+        return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+    user_info.delete()
+    response['success'] = 1
+    response['message'] = "User deleted"
+    return HttpResponse(json.dumps(response), content_type="application/json", status=200)
+
+
+@csrf_exempt
 def user_change_password(request):
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
