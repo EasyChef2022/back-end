@@ -42,7 +42,7 @@ def get_recipes(offset, limit):
 def send_request():
     url = 'http://easychef.herokuapp.com/recipe/add_recipe'
     # url = 'http://localhost:8000/recipe/add_recipe'
-    count = get_recipe_count()
+    count = 9000
     for i in range(0, count, 500):
         recipes = get_recipes(i, 500)
         data = {'recipes': recipes}

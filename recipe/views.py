@@ -1,16 +1,18 @@
 import hashlib
 import json
 import random
+from datetime import datetime
 
 from django.http import HttpResponse
 
-from util.reverse_search_sql import search_by_ingredients, serach_by_name
+from util.reverse_search_sql import search_by_ingredients, search_by_name, sort_result
 from .models import Recipe
 from .forms import RecipeForm
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 Auth = 'dc05414dd18879df268456db4e29a5f2d045dea2176c19888cc91769a52436f9'
+Day1 = datetime(day=21, month=1, year=2022)
 
 
 @csrf_exempt
@@ -46,9 +48,12 @@ def get_recipe_by_exact_match(request):
                 break
         if valid_recipe and i['id'] not in exclude:
             result.append(i['id'])
-    recipes = []
+
+    r = []
     for i in result:
-        recipes.append(Recipe.objects.get(id=i))
+        r.append(Recipe.objects.get(id=i))
+    recipes = sort_result(r, request_data['sort'] if 'sort' in request_data else 'name')
+
     if result:
         response['result'] = recipes
         response['success'] = 1
@@ -85,10 +90,11 @@ def get_recipe_by_ingredients(request):
     try:
         for r in Recipe.objects.raw(sql):
             result.append(r)
+        recipes = sort_result(result, request_data['sort'] if 'sort' in request_data else 'name')
     except Exception as e:
         response["message"] = str(e)
         return HttpResponse(json.dumps(response), content_type="application/json", status=500)
-    response['result'] = result
+    response['result'] = recipes
     response['success'] = 1
     response['exact'] = 0
     return HttpResponse(json.dumps(response, cls=Recipe.RecipeEncoder, indent=4), content_type="application/json")
@@ -118,7 +124,7 @@ def get_recipe_by_name(request):
     request_data = json.loads(request.body)
     name = request_data['name']
     result = []
-    sql = serach_by_name(name)
+    sql = search_by_name(name)
 
     try:
         for r in Recipe.objects.raw(sql):
@@ -130,7 +136,19 @@ def get_recipe_by_name(request):
 
 
 @csrf_exempt
+def get_recipe_random(request):
+    while 1 == 1:
+        try:
+            return HttpResponse(
+                json.dumps(Recipe.objects.get(id=random.randint(1, Recipe.objects.count())), cls=Recipe.RecipeEncoder,
+                           indent=4), content_type="application/json")
+        except Exception as e:
+            continue
+
+
+@csrf_exempt
 def get_recipe_of_today(request):
+    random.seed((datetime.now() - Day1).days)
     while 1 == 1:
         try:
             return HttpResponse(
