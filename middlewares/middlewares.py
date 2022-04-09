@@ -5,7 +5,7 @@ import time
 from django.utils.deprecation import MiddlewareMixin
 from django.shortcuts import HttpResponse, redirect
 
-JWT_Required_Paths = ['/user/change_password', 'user/delete_user' '/user/add_pantry', '/user/remove_pantry']
+JWT_Required_Paths = ['/user/change_password', '/user/delete_user', '/user/add_pantry', '/user/remove_pantry']
 JWT_secret = 'easychef'
 
 
@@ -19,7 +19,7 @@ class JWTMiddleware(MiddlewareMixin):
             try:
                 token = header['Authorization'].split(' ')[1]
             except:
-                response = {'success': 0, 'message': 'Invalid token'}
+                response = {'success': 0, 'message': 'Missing token in header or invalid token'}
                 return HttpResponse(json.dumps(response), content_type="application/json", status=403)
 
             # Token authentication
