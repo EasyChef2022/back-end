@@ -211,6 +211,7 @@ def user_add_pantry(request):
             user.save()
             response['success'] = "1"
             response['message'] = "Successfully added"
+            response['item'] = item
             return HttpResponse(json.dumps(response), content_type="application/json", status=200)
         except Exception as e:
             response['message'] = str(e)
