@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import django_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,8 +37,8 @@ INSTALLED_APPS = [
     'corsheaders',  # Handle CORS
     'recipe.apps.RecipeConfig',
     'user.apps.UserConfig',
-    'rest_framework',
-    'rest_framework_swagger'
+    'ping.apps.PingConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -77,14 +78,23 @@ WSGI_APPLICATION = 'EasyChef.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    # database for heroku deployment
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'easychef',
-        'USER': 'postgres',
-        'PASSWORD': 'Karlhe459!',
+        'NAME': 'd3351piepk4rjj',
+        'USER': 'bagqetffbnnrdy',
+        'PASSWORD': 'd3356eb1cdfb3959b7f202b578e7a6aa75737ae3d742511fb286f6ad542db9b7',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'easychef',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'Karlhe459!',
+    #     'HOST': '127.0.0.1',
+    #     'PORT': '5432',
+    # }
 }
 
 # Password validation
@@ -169,3 +179,5 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+
+django_heroku.settings(locals())

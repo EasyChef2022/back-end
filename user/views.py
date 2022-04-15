@@ -54,12 +54,14 @@ def user_sign_in(request):
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
         request_data = json.loads(request.body)
+        # Get user by username
         try:
             user_info = User.objects.get(username=request_data['username'])
         except Exception as e:
             response['message'] = "User not found"
             return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
+        # Compare password
         try:
             if compare_password(request_data['password'], user_info.password):
                 response['message'] = "Login successful"
@@ -103,6 +105,24 @@ def get_user_by_username(request):
 
 
 @csrf_exempt
+def delete_user(request):
+    response = {"success": 0, "message": ""}
+    if request.method != 'POST':
+        response["message"] = "Method not allowed"
+        return HttpResponse(json.dumps(response), content_type="application/json", status=405)
+    try:
+        request_data = json.loads(request.body)
+        user_info = User.objects.get(username=request_data['username'])
+    except Exception as e:
+        response["message"] = str(e)
+        return HttpResponse(json.dumps(response), content_type="application/json", status=500)
+    user_info.delete()
+    response['success'] = 1
+    response['message'] = "User deleted"
+    return HttpResponse(json.dumps(response), content_type="application/json", status=200)
+
+
+@csrf_exempt
 def user_change_password(request):
     response = {"success": "0", "message": ""}
     if request.method == 'POST':
@@ -139,8 +159,13 @@ def user_add_pantry(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
         indicator = request_data['type']
-        user = User.objects.get(username=request_data['username'])
+        try:
+            user = User.objects.get(username=request_data['username'])
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
         item = request_data['item']
+
         # Hardcoded for now
         if indicator == 'herbs':
             if item not in user.herbs:
@@ -186,6 +211,7 @@ def user_add_pantry(request):
             user.save()
             response['success'] = "1"
             response['message'] = "Successfully added"
+            response['item'] = item
             return HttpResponse(json.dumps(response), content_type="application/json", status=200)
         except Exception as e:
             response['message'] = str(e)
@@ -201,7 +227,11 @@ def user_remove_pantry(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
         indicator = request_data['type']
-        user = User.objects.get(username=request_data['username'])
+        try:
+            user = User.objects.get(username=request_data['username'])
+        except Exception as e:
+            response['message'] = str(e)
+            return HttpResponse(json.dumps(response), content_type="application/json", status=400)
 
         # Hardcoded for now
         if indicator == 'herbs':
