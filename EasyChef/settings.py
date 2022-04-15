@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'recipe.apps.RecipeConfig',
     'user.apps.UserConfig',
     'ping.apps.PingConfig',
-    'rest_framework',
-    'rest_framework_swagger'
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
