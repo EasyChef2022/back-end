@@ -21,8 +21,8 @@ def sort_result(result: [recipe.models.Recipe], sort_by: str) -> [recipe.models.
     if sort_by == 'rating':
         return sorted(result, key=lambda x: x.rating, reverse=True)
     elif sort_by == 'complexity':
-        return sorted(result, key=lambda x: len(x.ingredients), reverse=True)
+        return sorted(result, key=lambda x: len(x.ingredients))
     elif sort_by == 'time':
-        return sorted(result, key=lambda x: x.cook_time, reverse=True)
+        return sorted(result, key=lambda x: x.cook_time)
     else:
         return sorted(result, key=lambda x: x.title)
